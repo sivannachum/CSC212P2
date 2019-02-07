@@ -18,8 +18,14 @@ public class Fish extends WorldObject {
 	public static Color[] COLORS = {
 			Color.red,
 			Color.green,
-			Color.yellow
-			// TODO: (lab) Add more colors.
+			Color.yellow,
+			Color.blue,
+			Color.cyan,
+			Color.magenta,
+			Color.lightGray,
+			Color.orange,
+			Color.pink,
+			Color.white
 			// TODO: (P2) Maybe make a special fish that is more points?
 	};
 	/**
@@ -30,6 +36,10 @@ public class Fish extends WorldObject {
 	 * Whether or not this is the player;
 	 */
 	boolean player = false;
+	/**
+	 * Whether or not the fish will move randomly more often.
+	 */
+	boolean fastScared;
 	
 	/**
 	 * Called only on the Fish that is the player!
@@ -47,6 +57,10 @@ public class Fish extends WorldObject {
 	public Fish(int color, World world) {
 		super(world);
 		this.color = color;
+		/**
+		 * This boolean is random.
+		 */
+		fastScared = rand.nextBoolean();
 	}
 	
 	/**

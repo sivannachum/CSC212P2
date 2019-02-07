@@ -145,7 +145,14 @@ public class World {
 	 * @return the Rock.
 	 */
 	public Rock insertRockRandomly() {
-		Rock r = new Rock(this);
+		boolean falling = rand.nextBoolean();
+		Rock r;
+		if (falling) {
+			r = new FallingRock(this);
+		}
+		else {
+			r = new Rock(this);
+		}
 		insertRandomly(r);
 		return r;
 	}
