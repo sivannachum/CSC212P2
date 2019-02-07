@@ -204,11 +204,11 @@ public class World {
 		List<WorldObject> inSpot = this.find(x, y);
 		
 		for (WorldObject it : inSpot) {
-			// TODO(P2): Don't let us move over rocks as a Fish.
-			// The other fish shouldn't step "on" the player, the player should step on the other fish.
-			if (it instanceof Snail) {
-				// This if-statement doesn't let anyone step on the Snail.
-				// The Snail(s) are not gonna take it.
+			// The only WorldObject that can move over another WorldObject is the player over other fish
+			if (it instanceof WorldObject) {
+				if (isPlayer && (it instanceof Fish || it instanceof FishHome)) {
+					return true;
+				}
 				return false;
 			}
 		}
@@ -235,7 +235,7 @@ public class World {
 	public static void objectsFollow(WorldObject target, List<? extends WorldObject> followers) {
 		// recentPositions is a special type of List that tracks recent positions of a WorldObject, here we use the target's recent positions to move its followers behind it
 		// Followers, in our game, are fish that have been found and are following the target
-		// The target is the leader of the fish, in our game the player
+		// The target is the leader of the followers, in our game the player
 		// Past is putWhere.get(i+1) because the first element of putWhere is where the target currently is, so we don't want to put any followers on top of the target
 		List<IntPoint> putWhere = new ArrayList<>(target.recentPositions);
 		for (int i=0; i<followers.size(); i++) {

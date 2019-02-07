@@ -120,10 +120,17 @@ public class FishGame {
 				missing.remove(wo);
 				
 				// Add the fish to the list of found fish so it follows the player fish around
-				found.add((Fish) wo);
+				Fish fish = (Fish) wo;
+				found.add(fish);
 				
 				// Increase score when you find a fish!
-				score += 10;
+				// Fish that move more often are worth more because they are harder to catch.
+				if (fish.fastScared) {
+					score += 20;
+				}
+				else {
+					score += 10;
+				}
 			}
 		}
 		
@@ -163,8 +170,12 @@ public class FishGame {
 		// TODO(P2) use this print to debug your World.canSwim changes!
 		System.out.println("Clicked on: "+x+","+y+ " world.canSwim(player,...)="+world.canSwim(player, x, y));
 		List<WorldObject> atPoint = world.find(x, y);
-		// TODO(P2) allow the user to click and remove rocks.
-
+		for (WorldObject wo : atPoint)
+		{
+			if (wo instanceof Rock) {
+				world.remove(wo);
+			}
+		}
 	}
 	
 }
