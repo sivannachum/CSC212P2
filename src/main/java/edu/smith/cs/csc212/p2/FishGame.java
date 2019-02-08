@@ -32,7 +32,6 @@ public class FishGame {
 	 * These are fish we've found!
 	 */
 	List<Fish> found;
-	
 	/**
 	 * Number of steps!
 	 */
@@ -42,12 +41,15 @@ public class FishGame {
 	 * Score!
 	 */
 	int score;
+	/**
+	 * A reference to a random object, so we can randomize placement of objects in this world.
+	 */
+	Random rand = ThreadLocalRandom.current();
 	
 	/**
 	 * The number of rocks generated in each game.
 	 */
 	static final int NUM_ROCKS = 20;
-	
 	/**
 	 * Create a FishGame of a particular size.
 	 * @param w how wide is the grid?
@@ -96,8 +98,7 @@ public class FishGame {
 	 * @return true if the player has won (or maybe lost?).
 	 */
 	public boolean gameOver() {
-		// TODO(P2) We want to bring the fish home before we win!
-		return missing.isEmpty();
+		return missing.isEmpty() && found.isEmpty();
 	}
 
 	/**
@@ -132,6 +133,26 @@ public class FishGame {
 					score += 10;
 				}
 			}
+			/**
+			 * When the player goes home, all its followers also go home (exit the game).
+			 */
+			if (wo instanceof FishHome) {
+				for (int i = found.size() - 1; i >= 0; i--) {
+					Fish delete = found.remove(i);
+					world.remove(delete);
+				}
+			}
+			/**
+			 * If the player has taken too many steps and its list of found fish is too long, it can lose fish from its followers.
+			 * There is an 80% chance of losing a fish from the back of a found list of more than 3.
+			 */
+			if (stepsTaken > 20) {
+				double loseFish = rand.nextDouble();
+				if (found.size() > 3 && loseFish <= .8) {
+					Fish lostAgain = found.remove(found.size() - 1);
+					missing.add(lostAgain);
+				}
+			}
 		}
 		
 		// Make sure missing fish *do* something.
@@ -146,7 +167,10 @@ public class FishGame {
 	 * Call moveRandomly() on all of the missing fish to make them seem alive.
 	 */
 	private void wanderMissingFish() {
-		Random rand = ThreadLocalRandom.current();
+		/**
+		 * These are fish that have found their own way home that need to be removed from the missing list.
+		 */
+		List<Fish> toRemove = new ArrayList<Fish>();
 		for (Fish lost : missing) {
 			double randomDouble = rand.nextDouble();
 			// A lost fish moves randomly more often if it is fastScared.
@@ -158,6 +182,31 @@ public class FishGame {
 			else if (randomDouble < 0.3) {
 				lost.moveRandomly();
 			}
+			/**
+			 * Here we check if there are any other world objects in the same position as a missing fish.
+			 * The only possible world object a lost fish can go over is the home, but the player can go over lost fish.
+			 * We must remove any fish from the list of WorldObjects on the cell.
+			 * If an object in the list is not a fish, it must be the home, so
+			 * the fish has made it home and we remove it from the game.
+			 */
+			List<WorldObject> samePlace = lost.findSameCell();
+			boolean home = false;
+			for (WorldObject wo : samePlace) {
+				if (!(wo instanceof Fish)) {
+					home = true;
+				}
+			}
+			if (home) {
+				toRemove.add(lost);
+				world.remove(lost);
+			}
+		}
+		/**
+		 * After the for loop has run, we remove any fish that have made it home.
+		 */
+		for (int i = toRemove.size() - 1; i >= 0 ; i--) {
+			Fish delete = toRemove.remove(i);
+			missing.remove(delete);
 		}
 	}
 

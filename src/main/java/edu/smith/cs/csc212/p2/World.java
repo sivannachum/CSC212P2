@@ -209,10 +209,12 @@ public class World {
 				if (isPlayer && (it instanceof Fish || it instanceof FishHome)) {
 					return true;
 				}
-				return false;
+				if (whoIsAsking instanceof Fish && it instanceof FishHome) {
+					return true;
+				}
 			}
+			return false;
 		}
-		
 		// If we didn't see an obstacle, we can move there!
 		return true;
 	}
