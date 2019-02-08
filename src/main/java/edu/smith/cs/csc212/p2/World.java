@@ -184,6 +184,12 @@ public class World {
 		return snail;
 	}
 	
+	public FishFood insertFoodRandomly() {
+		FishFood food = new FishFood(this);
+		insertRandomly(food);
+		return food;
+	}
+	
 	/**
 	 * Determine if a WorldObject can swim to a particular point.
 	 * 
@@ -206,10 +212,10 @@ public class World {
 		for (WorldObject it : inSpot) {
 			// The only WorldObject that can move over another WorldObject is the player over other fish
 			if (it instanceof WorldObject) {
-				if (isPlayer && (it instanceof Fish || it instanceof FishHome)) {
+				if (isPlayer && (it instanceof Fish || it instanceof FishHome || it instanceof FishFood)) {
 					return true;
 				}
-				if (whoIsAsking instanceof Fish && it instanceof FishHome) {
+				if (whoIsAsking instanceof Fish && (it instanceof FishHome || it instanceof FishFood)) {
 					return true;
 				}
 			}

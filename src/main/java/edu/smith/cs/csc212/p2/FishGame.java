@@ -114,6 +114,7 @@ public class FishGame {
 		overlap.remove(this.player);
 		
 		// If we find a fish, remove it from missing.
+		FishFood here = null;
 		for (WorldObject wo : overlap) {
 			// It is missing if it's in our missing list.
 			if (missing.contains(wo)) {
@@ -133,6 +134,9 @@ public class FishGame {
 					score += 10;
 				}
 			}
+			else if (wo instanceof FishFood) {
+				here = (FishFood) wo;
+			}
 			/**
 			 * When the player goes home, all its followers also go home (exit the game).
 			 */
@@ -142,17 +146,27 @@ public class FishGame {
 					world.remove(delete);
 				}
 			}
-			/**
-			 * If the player has taken too many steps and its list of found fish is too long, it can lose fish from its followers.
-			 * There is an 80% chance of losing a fish from the back of a found list of more than 3.
-			 */
-			if (stepsTaken > 20) {
-				double loseFish = rand.nextDouble();
-				if (found.size() > 3 && loseFish <= .8) {
-					Fish lostAgain = found.remove(found.size() - 1);
-					missing.add(lostAgain);
-				}
+		}
+		/**
+		 * If the player has taken too many steps and its list of found fish is too long, it can lose fish from its followers.
+		 * There is an 30% chance of losing a fish from the back of a found list of more than 3.
+		 */
+		if (stepsTaken > 20) {
+			double loseFish = rand.nextDouble();
+			if (found.size() > 3 && loseFish <= .3) {
+				Fish lostAgain = found.remove(found.size() - 1);
+				missing.add(lostAgain);
 			}
+		}
+		if (rand.nextDouble() <= .05) {
+			world.insertFoodRandomly();
+		}
+		/**
+		 * If the player has gotten some fish food, they gain points.
+		 */
+		if (here != null) {
+			world.remove(here);
+			score += 10;
 		}
 		
 		// Make sure missing fish *do* something.
@@ -191,14 +205,21 @@ public class FishGame {
 			 */
 			List<WorldObject> samePlace = lost.findSameCell();
 			boolean home = false;
+			FishFood here = null;
 			for (WorldObject wo : samePlace) {
-				if (!(wo instanceof Fish)) {
+				if (wo instanceof FishHome) {
 					home = true;
+				}
+				else if (wo instanceof FishFood) {
+					here = (FishFood) wo;
 				}
 			}
 			if (home) {
 				toRemove.add(lost);
 				world.remove(lost);
+			}
+			if (here != null) {
+				world.remove(here);
 			}
 		}
 		/**
