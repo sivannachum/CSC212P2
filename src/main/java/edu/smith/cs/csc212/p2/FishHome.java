@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 
 /**
- * This class represents a FishHome. Someday our game will require us to return missing fish to this WorldObject.
+ * This class represents a FishHome. Our game requires us to return missing fish to this WorldObject.
  * @author jfoley
  *
  */

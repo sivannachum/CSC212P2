@@ -5,7 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.geom.RoundRectangle2D;
 
 /**
- * It would be awful nice to have multi-colored rocks at random.
  * This is not <a href="https://en.wikipedia.org/wiki/Dwayne_Johnson">the Rock</a>, but a Rock.
  * @author jfoley
  */

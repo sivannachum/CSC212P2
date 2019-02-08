@@ -26,7 +26,7 @@ public class Fish extends WorldObject {
 			Color.orange,
 			Color.pink,
 			Color.white
-			// Maybe make a special fish that is more points? Note: I did this but in the FishGame class
+			// Maybe make a special fish that is more points? Note: I did this but in the FishGame class.
 	};
 	/**
 	 * This is an index into the {@link #COLORS} array.

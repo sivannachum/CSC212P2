@@ -42,7 +42,7 @@ public class FishGame {
 	 */
 	int score;
 	/**
-	 * A reference to a random object, so we can randomize placement of objects in this world.
+	 * A reference to a random object, so we can randomize things in this world.
 	 */
 	Random rand = ThreadLocalRandom.current();
 	
@@ -95,7 +95,7 @@ public class FishGame {
 	
 	/**
 	 * This method is how the PlayFish app tells whether we're done.
-	 * @return true if the player has won (or maybe lost?).
+	 * @return true if the player has won.
 	 */
 	public boolean gameOver() {
 		return missing.isEmpty() && found.isEmpty();
@@ -113,15 +113,17 @@ public class FishGame {
 		// The player is there, too, let's skip them.
 		overlap.remove(this.player);
 		
-		// If we find a fish, remove it from missing.
+		// Initialize a FishFood object to see if the player has eaten any food.
 		FishFood here = null;
+		// If we find a fish, remove it from missing.
+		// If we find food, make the player eat it and gain points.
 		for (WorldObject wo : overlap) {
-			// It is missing if it's in our missing list.
+			// A fish is missing if it's in our missing list.
 			if (missing.contains(wo)) {
 				// Remove this fish from the missing list.
 				missing.remove(wo);
 				
-				// Add the fish to the list of found fish so it follows the player fish around
+				// Add the fish to the list of found fish so it follows the player fish around.
 				Fish fish = (Fish) wo;
 				found.add(fish);
 				
@@ -134,12 +136,14 @@ public class FishGame {
 					score += 10;
 				}
 			}
+			// Keep track if we have eaten food.
 			else if (wo instanceof FishFood) {
 				here = (FishFood) wo;
 			}
 			/**
-			 * When the player goes home, all its followers also go home (exit the game).
+			 * When the player goes home, all its followers also go home (exit the game and are removed from the found list).
 			 */
+			// I did not make this an else if in case both another fish and the home are there.
 			if (wo instanceof FishHome) {
 				for (int i = found.size() - 1; i >= 0; i--) {
 					Fish delete = found.remove(i);
@@ -150,14 +154,24 @@ public class FishGame {
 		/**
 		 * If the player has taken too many steps and its list of found fish is too long, it can lose fish from its followers.
 		 * There is an 30% chance of losing a fish from the back of a found list of more than 3.
+		 * The player loses points they gained if they lose the fish.
 		 */
 		if (stepsTaken > 20) {
 			double loseFish = rand.nextDouble();
 			if (found.size() > 3 && loseFish <= .3) {
 				Fish lostAgain = found.remove(found.size() - 1);
 				missing.add(lostAgain);
+				if (lostAgain.fastScared) {
+					score -= 20;
+				}
+				else {
+					score -= 10;
+				}
 			}
 		}
+		/**
+		 * There is a 5% chance with each step that food will randomly appear in the game.
+		 */
 		if (rand.nextDouble() <= .05) {
 			world.insertFoodRandomly();
 		}
@@ -179,10 +193,12 @@ public class FishGame {
 	
 	/**
 	 * Call moveRandomly() on all of the missing fish to make them seem alive.
+	 * Make them exist the game if they've gone home.
+	 * Make them eat food if they've found it.
 	 */
 	private void wanderMissingFish() {
 		/**
-		 * These are fish that have found their own way home that need to be removed from the missing list.
+		 * This is a list of fish that have found their own way home that need to be removed from the missing list (and from the game).
 		 */
 		List<Fish> toRemove = new ArrayList<Fish>();
 		for (Fish lost : missing) {
@@ -198,10 +214,10 @@ public class FishGame {
 			}
 			/**
 			 * Here we check if there are any other world objects in the same position as a missing fish.
-			 * The only possible world object a lost fish can go over is the home, but the player can go over lost fish.
-			 * We must remove any fish from the list of WorldObjects on the cell.
-			 * If an object in the list is not a fish, it must be the home, so
-			 * the fish has made it home and we remove it from the game.
+			 * We must remove any fish from the list of WorldObjects on the same cell because they do not affect anything.
+			 * If an object in the list is not a fish, it is either home or food.
+			 * If it is home, the fish is removed from the game.
+			 * If it is food, the fish eats it and the food is removed from the game.
 			 */
 			List<WorldObject> samePlace = lost.findSameCell();
 			boolean home = false;
@@ -214,16 +230,20 @@ public class FishGame {
 					here = (FishFood) wo;
 				}
 			}
+			// If the fish is home, it leaves the world.
 			if (home) {
+				// As we traverse the missing list, we cannot remove objects from it.
+				// We must keep track of the objects we need to remove from it and remove them once we exit this for loop.
 				toRemove.add(lost);
 				world.remove(lost);
 			}
+			// If the fish eats food, the food is removed from the game.
 			if (here != null) {
 				world.remove(here);
 			}
 		}
 		/**
-		 * After the for loop has run, we remove any fish that have made it home.
+		 * After the for loop has run, we remove any fish that have made it home from the missing list.
 		 */
 		for (int i = toRemove.size() - 1; i >= 0 ; i--) {
 			Fish delete = toRemove.remove(i);
@@ -237,8 +257,6 @@ public class FishGame {
 	 * @param y - the y-tile.
 	 */
 	public void click(int x, int y) {
-		// TODO(P2) use this print to debug your World.canSwim changes!
-		System.out.println("Clicked on: "+x+","+y+ " world.canSwim(player,...)="+world.canSwim(player, x, y));
 		List<WorldObject> atPoint = world.find(x, y);
 		for (WorldObject wo : atPoint)
 		{

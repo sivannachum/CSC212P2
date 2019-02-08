@@ -210,7 +210,9 @@ public class World {
 		List<WorldObject> inSpot = this.find(x, y);
 		
 		for (WorldObject it : inSpot) {
-			// The only WorldObject that can move over another WorldObject is the player over other fish
+			// The player can move over food, the house, and other fish.
+			// Any other fish can only move over food and the house.
+			// Other WorldObjects cannot move over anything.
 			if (it instanceof WorldObject) {
 				if (isPlayer && (it instanceof Fish || it instanceof FishHome || it instanceof FishFood)) {
 					return true;
@@ -241,10 +243,10 @@ public class World {
 	 * @param followers a set of objects to follow the leader.
 	 */
 	public static void objectsFollow(WorldObject target, List<? extends WorldObject> followers) {
-		// recentPositions is a special type of List that tracks recent positions of a WorldObject, here we use the target's recent positions to move its followers behind it
-		// Followers, in our game, are fish that have been found and are following the target
-		// The target is the leader of the followers, in our game the player
-		// Past is putWhere.get(i+1) because the first element of putWhere is where the target currently is, so we don't want to put any followers on top of the target
+		// recentPositions is a special type of List that tracks recent positions of a WorldObject, here we use the target's recent positions to move its followers behind it.
+		// Followers, in our game, are fish that have been found and are following the target.
+		// The target is the leader of the followers, in our game the player.
+		// Past is putWhere.get(i+1) because the first element of putWhere is where the target currently is, so we don't want to put any followers on top of the target.
 		List<IntPoint> putWhere = new ArrayList<>(target.recentPositions);
 		for (int i=0; i<followers.size(); i++) {
 			IntPoint past = putWhere.get(i+1);

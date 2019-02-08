@@ -11,6 +11,9 @@ public class FallingRock extends Rock {
 	}
 	
 	@Override
+	/**
+	 * Falling rocks move down whenever they can.
+	 */
 	public void step() {
 		moveDown();
 	}
